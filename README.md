@@ -243,4 +243,3 @@ CUCM_Live_Monitor/
 ## License
 
 MIT License - feel free to use and modify for your needs.
-# CUCM-Live-Monitor

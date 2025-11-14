@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  cucm-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cucm-live-monitor
+    ports:
+      - "8000:8000"
+    environment:
+      # CUCM Connection (from .env file)
+      - CUCM_HOST=${CUCM_HOST}
+      - CUCM_USERNAME=${CUCM_USERNAME}
+      - CUCM_PASSWORD=${CUCM_PASSWORD}
+      - CUCM_VERSION=${CUCM_VERSION:-14.0}
+
+      # Application Settings
+      - POLL_INTERVAL=${POLL_INTERVAL:-5}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8000}
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - cucm-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  cucm-network:
+    driver: bridge

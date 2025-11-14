@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUCM Live Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>📞 CUCM Live Call Monitor</h1>
+                <a href="/settings" style="
+                    padding: 8px 16px;
+                    background: #3498db;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    font-weight: 600;
+                ">⚙️ Settings</a>
+            </div>
+            <div class="connection-info">
+                <div>
+                    <strong>CUCM Host:</strong>
+                    <span id="cucm-host">Connecting...</span>
+                </div>
+                <div class="connection-status">
+                    <div class="status-indicator disconnected" id="status-indicator"></div>
+                    <span id="status-text">Connecting...</span>
+                </div>
+                <div>
+                    <strong>Last Update:</strong>
+                    <span id="last-update">—</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message" style="display: none;"></div>
+
+        <!-- Cluster Nodes Status -->
+        <div class="cluster-nodes" id="cluster-nodes" style="display: none;">
+            <strong>Cluster Nodes:</strong>
+            <div id="nodes-container" class="nodes-container"></div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Active Calls</div>
+                <div class="stat-value" id="active-calls">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Registered Devices</div>
+                <div class="stat-value" id="registered-devices">—</div>
+            </div>
+        </div>
+
+        <!-- Devices Section -->
+        <div class="devices-section">
+            <div class="devices-header">
+                <div>
+                    <h2>Registered Devices</h2>
+                    <span id="device-count" style="color: #666; font-size: 14px;">0 devices</span>
+                </div>
+            </div>
+
+            <table class="devices-table">
+                <thead>
+                    <tr>
+                        <th>Device Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Call Status</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody id="devices-tbody">
+                    <tr>
+                        <td colspan="5" class="loading">Connecting to CUCM...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Logs
+*.log
+logs/
+
+# Virtual environment (local development)
+venv/
+
+# Docker
+.dockerignore
+
+# Development test files
+test_*.py
+scratch_*.py
+debug_*.py
+
+# Backup files
+*.backup
+*_backup.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Claude AI context (keep local)
+.claude/

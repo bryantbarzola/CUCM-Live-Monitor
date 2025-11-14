@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - CUCM Live Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .settings-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .settings-header {
+            margin-bottom: 30px;
+        }
+
+        .settings-header h1 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .settings-header p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <a href="/" class="back-link">← Back to Dashboard</a>
+
+        <div class="settings-header">
+            <h1>⚙️ CUCM Settings</h1>
+            <p>Configure your Cisco Unified Communications Manager connection</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form id="settings-form">
+            <div class="form-group">
+                <label for="cucm_host">CUCM Host / IP Address</label>
+                <input
+                    type="text"
+                    id="cucm_host"
+                    name="cucm_host"
+                    placeholder="cucm.example.com"
+                    required
+                >
+                <small>Hostname or IP address of your CUCM server</small>
+            </div>
+
+            <div class="form-group">
+                <label for="cucm_username">Username</label>
+                <input
+                    type="text"
+                    id="cucm_username"
+                    name="cucm_username"
+                    placeholder="your_cucm_username"
+                    required
+                >
+                <small>Application user with AXL API access</small>
+            </div>
+
+            <div class="form-group">
+                <label for="cucm_password">Password</label>
+                <input
+                    type="password"
+                    id="cucm_password"
+                    name="cucm_password"
+                    placeholder="Enter password"
+                    required
+                >
+                <small>Leave unchanged if you don't want to update</small>
+            </div>
+
+            <div class="form-group">
+                <label for="poll_interval">Poll Interval (seconds)</label>
+                <input
+                    type="number"
+                    id="poll_interval"
+                    name="poll_interval"
+                    min="1"
+                    max="60"
+                    value="5"
+                    required
+                >
+                <small>How often to query CUCM for updates (1-60 seconds)</small>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="loadSettings()">Reset</button>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Load current settings on page load
+        window.addEventListener('DOMContentLoaded', loadSettings);
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+
+                document.getElementById('cucm_host').value = data.cucm_host;
+                document.getElementById('cucm_username').value = data.cucm_username;
+                document.getElementById('cucm_password').value = '';
+                document.getElementById('poll_interval').value = data.poll_interval;
+
+                hideMessage();
+            } catch (error) {
+                showMessage('Failed to load settings: ' + error.message, 'error');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('.btn-primary');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const formData = {
+                cucm_host: document.getElementById('cucm_host').value,
+                cucm_username: document.getElementById('cucm_username').value,
+                cucm_password: document.getElementById('cucm_password').value,
+                poll_interval: parseInt(document.getElementById('poll_interval').value)
+            };
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showMessage('Error: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to save settings: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Settings';
+            }
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+
+        function hideMessage() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
